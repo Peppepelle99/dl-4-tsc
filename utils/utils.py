@@ -35,6 +35,16 @@ def readucr(filename):
     X = data[:, 1:]
     return X, Y
 
+def load_dataset():
+    data_train = np.loadtxt('\archives\BME\BME_TRAIN.txt')
+    y_train = data_train[:, 0]
+    x_train = data_train[:, 1:]
+
+    data_test = np.loadtxt('\archives\BME\BME_TEST.txt')
+    y_test = data_test[:, 0]
+    x_test = data_test[:, 1:]
+
+    return x_train, y_train, x_test, y_test
 
 def create_directory(directory_path):
     if os.path.exists(directory_path):
