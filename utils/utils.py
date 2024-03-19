@@ -28,6 +28,7 @@ from sklearn.preprocessing import LabelEncoder
 from scipy.interpolate import interp1d
 from scipy.io import loadmat
 
+np.float = float
 
 def readucr(filename):
     data = np.loadtxt(filename, delimiter=',')
@@ -36,11 +37,11 @@ def readucr(filename):
     return X, Y
 
 def load_dataset():
-    data_train = np.loadtxt('\archives\BME\BME_TRAIN.txt')
+    data_train = np.loadtxt('archives/BME/BME_TRAIN.txt')
     y_train = data_train[:, 0]
     x_train = data_train[:, 1:]
 
-    data_test = np.loadtxt('\archives\BME\BME_TEST.txt')
+    data_test = np.loadtxt('archives/BME/BME_TEST.txt')
     y_test = data_test[:, 0]
     x_test = data_test[:, 1:]
 
@@ -299,7 +300,7 @@ def calculate_metrics(y_true, y_pred, duration, y_true_val=None, y_pred_val=None
 
 
 def save_test_duration(file_name, test_duration):
-    res = pd.DataFrame(data=np.zeros((1, 1), dtype=np.float), index=[0],
+    res = pd.DataFrame(data=np.zeros((1, 1), dtype=float), index=[0],
                        columns=['test_duration'])
     res['test_duration'] = test_duration
     res.to_csv(file_name, index=False)

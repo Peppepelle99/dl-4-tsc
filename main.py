@@ -68,7 +68,7 @@ def create_classifier(classifier_name, input_shape, nb_classes, output_directory
 ############################################### main
 
 # change this directory for your machine
-root_dir = '/dl-4-tsc/'
+root_dir = 'content/dl-4-tsc/'
 
 # this is the code used to launch an experiment on a dataset
 classifier_name = sys.argv[1]
@@ -77,16 +77,15 @@ itr = sys.argv[2]
 if itr == '_itr_0':
     itr = ''
 
-output_directory = root_dir + '/results/' + classifier_name + '/' + itr + '/'
+output_directory = root_dir + 'results/' + classifier_name + '/' + itr + '/'
 
 test_dir_df_metrics = output_directory + 'df_metrics.csv'
 
 print('Method: ', classifier_name, itr)
-
 if os.path.exists(test_dir_df_metrics):
     print('Already done')
 else:
-
+    
     create_directory(output_directory)
     fit_classifier()
     print('DONE')
