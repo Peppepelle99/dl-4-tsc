@@ -3,12 +3,11 @@ import os
 import numpy as np
 import sys
 import sklearn
-import utils
-from utils.utils import load_dataset
+from utils.utils import load_dataset2
 
 def fit_classifier():
 
-    x_train, y_train, x_test, y_test = load_dataset()
+    x_train, y_train, x_test, y_test = load_dataset2()
 
     nb_classes = len(np.unique(np.concatenate((y_train, y_test), axis=0)))
 
@@ -65,19 +64,16 @@ def create_classifier(classifier_name, input_shape, nb_classes, output_directory
         return inception.Classifier_INCEPTION(output_directory, input_shape, nb_classes, verbose)
 
 
-############################################### main
 
-# change this directory for your machine
-root_dir = 'content/dl-4-tsc/'
 
-# this is the code used to launch an experiment on a dataset
+
 classifier_name = sys.argv[1]
 itr = sys.argv[2]
 
 if itr == '_itr_0':
     itr = ''
 
-output_directory = root_dir + 'results/' + classifier_name + '/' + itr + '/'
+output_directory = 'results/' + classifier_name + '/' + itr + '/'
 
 test_dir_df_metrics = output_directory + 'df_metrics.csv'
 
