@@ -35,7 +35,17 @@ def load_dataset2():
 
   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
 
-  return X_train, y_train, X_test, y_test
+  #Z-score Normalization
+  std_ = X_train.std(axis=1, keepdims=True)
+  std_[std_ == 0] = 1.0
+  X_train_normalized = (X_train - X_train.mean(axis=1, keepdims=True)) / std_
+
+  std_ = X_test.std(axis=1, keepdims=True)
+  std_[std_ == 0] = 1.0
+  X_test_normalized = (X_test - X_test.mean(axis=1, keepdims=True)) / std_
+  
+
+  return X_train_normalized, y_train, X_test_normalized, y_test
 
 def create_directory(directory_path):
     if os.path.exists(directory_path):

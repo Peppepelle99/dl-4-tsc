@@ -28,40 +28,17 @@ def fit_classifier():
     input_shape = x_train.shape[1:]
     classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory)
 
-    classifier.fit(x_train, y_train, x_test, y_test, y_true)
+    classifier.fit(x_train, y_train, x_test, y_test, y_true, nb_epochs = 150)
 
 
 def create_classifier(classifier_name, input_shape, nb_classes, output_directory, verbose=True):
-    if classifier_name == 'fcn':
-        from classifiers import fcn
-        return fcn.Classifier_FCN(output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == 'mlp':
-        from classifiers import mlp
-        return mlp.Classifier_MLP(output_directory, input_shape, nb_classes, verbose)
     if classifier_name == 'resnet':
         from classifiers import resnet
         return resnet.Classifier_RESNET(output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == 'mcnn':
-        from classifiers import mcnn
-        return mcnn.Classifier_MCNN(output_directory, verbose)
-    if classifier_name == 'tlenet':
-        from classifiers import tlenet
-        return tlenet.Classifier_TLENET(output_directory, verbose)
-    if classifier_name == 'twiesn':
-        from classifiers import twiesn
-        return twiesn.Classifier_TWIESN(output_directory, verbose)
-    if classifier_name == 'encoder':
-        from classifiers import encoder
-        return encoder.Classifier_ENCODER(output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == 'mcdcnn':
-        from classifiers import mcdcnn
-        return mcdcnn.Classifier_MCDCNN(output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == 'cnn':  # Time-CNN
-        from classifiers import cnn
-        return cnn.Classifier_CNN(output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == 'inception':
-        from classifiers import inception
-        return inception.Classifier_INCEPTION(output_directory, input_shape, nb_classes, verbose)
+    if classifier_name == 'hivecote2':
+        from classifiers import hivecote2
+        return hivecote2.Classifier_HIVECOTE2(output_directory, input_shape, nb_classes, verbose)
+    
 
 
 
