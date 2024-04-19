@@ -28,7 +28,7 @@ def load_dataset():
     return x_train, y_train, x_test, y_test
 
 def load_dataset2():
-  data = np.load('archives/1v_01.npy')
+  data = np.load('archives/Dataset_Liquid_2.npy')
   X = data[:, :-1]  
   y = data[:, -1]   
 
