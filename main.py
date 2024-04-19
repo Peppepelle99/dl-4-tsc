@@ -3,27 +3,30 @@ import os
 import numpy as np
 import sys
 import sklearn
-from utils.utils import load_dataset2
+from utils.utils import load_dataset
 
 def fit_classifier():
 
-    x_train, y_train, x_test, y_test = load_dataset2()
+    x_train, y_train, x_test, y_test = load_dataset()
 
     nb_classes = len(np.unique(np.concatenate((y_train, y_test), axis=0)))
 
     # transform the labels from integers to one hot vectors
-    enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
-    enc.fit(np.concatenate((y_train, y_test), axis=0).reshape(-1, 1))
-    y_train = enc.transform(y_train.reshape(-1, 1)).toarray()
-    y_test = enc.transform(y_test.reshape(-1, 1)).toarray()
 
-    # save orignal y because later we will use binary
-    y_true = np.argmax(y_test, axis=1)
+    if classifier_name != 'hivecote2':
+        enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
+        enc.fit(np.concatenate((y_train, y_test), axis=0).reshape(-1, 1))
+        y_train = enc.transform(y_train.reshape(-1, 1)).toarray()
+        y_test = enc.transform(y_test.reshape(-1, 1)).toarray()
 
+        # save orignal y because later we will use binary
+        y_true = np.argmax(y_test, axis=1)
+    else:
+        y_true = y_test
     
     # add a dimension to make it multivariate with one dimension 
-    x_train = x_train.reshape((x_train.shape[0], x_train.shape[1], 1))
-    x_test = x_test.reshape((x_test.shape[0], x_test.shape[1], 1))
+    x_train = x_train.reshape((x_train.shape[0],1, x_train.shape[1]))
+    x_test = x_test.reshape((x_test.shape[0],1, x_test.shape[1]))
 
     input_shape = x_train.shape[1:]
     classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory)

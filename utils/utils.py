@@ -16,18 +16,8 @@ from sklearn.model_selection import train_test_split
 from scipy.interpolate import interp1d
 np.float = float
 
+
 def load_dataset():
-    data_train = np.loadtxt('archives/BME/BME_TRAIN.txt')
-    y_train = data_train[:, 0]
-    x_train = data_train[:, 1:]
-
-    data_test = np.loadtxt('archives/BME/BME_TEST.txt')
-    y_test = data_test[:, 0]
-    x_test = data_test[:, 1:]
-
-    return x_train, y_train, x_test, y_test
-
-def load_dataset2():
   data = np.load('archives/Dataset_Liquid_2.npy')
   X = data[:, :-1]  
   y = data[:, -1]   
