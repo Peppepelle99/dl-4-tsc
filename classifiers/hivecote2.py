@@ -13,7 +13,7 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 from utils.utils import save_logs
-from utils.utils import calculate_metrics
+from utils.utils import visualize_confusion_matrix
 
 class Classifier_HIVECOTE2:
 
@@ -40,6 +40,7 @@ class Classifier_HIVECOTE2:
         y_val_pred = self.model.predict(x_val)
         print(f'accuracy: {accuracy_score(y_true, y_val_pred)}')
 
+        visualize_confusion_matrix(self.output_directory, y_true, y_pred)
         # save predictions
         np.save(self.output_directory + 'y_pred.npy', y_pred)
 

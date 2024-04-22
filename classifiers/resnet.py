@@ -1,6 +1,7 @@
 # resnet model 
 # when tuning start with learning rate->mini_batch_size -> 
-# momentum-> #hidden_units -> # learning_rate_decay -> #layers 
+# momentum-> #hidden_units -> #learning_rate_decay -> #layers 
+
 import tensorflow.keras as keras
 import tensorflow as tf
 import numpy as np
@@ -14,6 +15,7 @@ import matplotlib.pyplot as plt
 
 from utils.utils import save_logs
 from utils.utils import calculate_metrics
+from utils.utils import visualize_confusion_matrix
 
 
 class Classifier_RESNET:
@@ -125,7 +127,13 @@ class Classifier_RESNET:
         if not tf.test.is_gpu_available:
             print('error')
             exit()
+
         # x_val and y_val are only used to monitor the test loss and NOT for training
+
+        if self.model.weights:
+            print('modello nuovo')
+        else:
+            print('modello già addestrato')
 
         start_time = time.time()
 
@@ -145,11 +153,12 @@ class Classifier_RESNET:
         # convert the predicted from binary to integer
         y_pred = np.argmax(y_pred, axis=1)
 
+        visualize_confusion_matrix(self.output_directory, y_true, y_pred)
         df_metrics = save_logs(self.output_directory, hist, y_pred, y_true, duration)
 
         keras.backend.clear_session()
 
-        return df_metrics
+        return y_pred
 
     def predict(self, x_test, y_true, x_train, y_train, y_test, return_df_metrics=True):
         start_time = time.time()

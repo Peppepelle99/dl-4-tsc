@@ -13,6 +13,11 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.model_selection import train_test_split
 
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+
 from scipy.interpolate import interp1d
 np.float = float
 
@@ -36,6 +41,14 @@ def load_dataset():
   
 
   return X_train_normalized, y_train, X_test_normalized, y_test
+
+def load_dataset2():
+
+    data = np.load('archives/Dataset_Liquid_2.npy')
+    X = data[:, :-1]  
+    y = data[:, -1]
+
+    return X,y
 
 def create_directory(directory_path):
     if os.path.exists(directory_path):
@@ -214,3 +227,41 @@ def visualize_filter(root_dir):
     plt.savefig(root_dir + 'convolution-' + dataset_name + '.pdf')
 
     return 1
+
+def visualize_confusion_matrix(output_directory, y_true, y_pred):
+
+    # Supponiamo che y_true sia la lista delle vere etichette e y_pred sia la lista delle etichette predette dal tuo modello
+    # Ad esempio:
+    # y_true = [0, 1, 2, 0, 1, 2, 0, 1, 2]
+    # y_pred = [0, 1, 2, 1, 1, 2, 0, 0, 2]
+
+    # Calcola la matrice di confusione
+    cm = confusion_matrix(y_true, y_pred)
+
+    # Genera un grafico della matrice di confusione utilizzando seaborn
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=range(3), yticklabels=range(3))
+    plt.xlabel('Etichetta Predetta')
+    plt.ylabel('Etichetta Vera')
+    plt.title('Matrice di Confusione')
+    plt.show()
+    plt.savefig(output_directory+'/cm.png')
+
+def kfold_split(X, y, train_index, test_index, normalization=True ):
+    x_train = X[train_index]
+    y_train = y[train_index]
+    x_test = X[test_index]
+    y_test = y[test_index]
+
+    #Z-score Normalization
+    if normalization:
+        
+        std_ = x_train.std(axis=1, keepdims=True)
+        std_[std_ == 0] = 1.0
+        x_train = (x_train - x_train.mean(axis=1, keepdims=True)) / std_
+
+        std_ = x_test.std(axis=1, keepdims=True)
+        std_[std_ == 0] = 1.0
+        x_test = (x_test - x_test.mean(axis=1, keepdims=True)) / std_
+
+    return x_train, y_train, x_test, y_test
