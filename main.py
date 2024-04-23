@@ -3,9 +3,21 @@ import os
 import numpy as np
 import sys
 import sklearn
-from utils.utils import load_dataset, load_dataset2, kfold_split
+from utils.utils import load_dataset, load_dataset2, kfold_split, pre_train
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Imposta il livello di registro di TensorFlow a solo errori
+
+import tensorflow as tf
+tf.get_logger().setLevel('ERROR')  # Imposta il livello di registro di TensorFlow a solo errori
+
+import warnings
+warnings.filterwarnings("ignore")  # Ignora tutti i messaggi di avvertimento di Python
+
+import keras
+import logging
+logging.getLogger('tensorflow').disabled = True  # Disabilita tutti i messaggi di log di TensorFlow
 
 def fit_classifier():
 
@@ -14,6 +26,9 @@ def fit_classifier():
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 
     scores = []
+
+    classifier_pretrained = create_classifier(classifier_name, output_directory)
+    pre_train(classifier_pretrained.model)
 
     for i, (train_index, test_index) in enumerate(kfold.split(X,y)):
 
@@ -36,10 +51,12 @@ def fit_classifier():
       
       # add a dimension to make it multivariate with one dimension 
       x_train = x_train.reshape((x_train.shape[0],1, x_train.shape[1]))
-      x_test = x_test.reshape((x_test.shape[0],1, x_test.shape[1]))
+      x_test = x_test.reshape((x_test.shape[0],1, x_test.shape[1]))      
 
       input_shape = x_train.shape[1:]
+
       classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory)
+      classifier.model.set_weights(classifier_pretrained.model.get_weights())
 
       y_pred = classifier.fit(x_train, y_train, x_test, y_test, y_true, nb_epochs = 150)
 

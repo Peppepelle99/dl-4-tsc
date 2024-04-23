@@ -21,6 +21,8 @@ import seaborn as sns
 from scipy.interpolate import interp1d
 np.float = float
 
+from aeon.datasets import load_gunpoint
+
 
 def load_dataset():
   data = np.load('archives/Dataset_Liquid_2.npy')
@@ -265,3 +267,10 @@ def kfold_split(X, y, train_index, test_index, normalization=True ):
         x_test = (x_test - x_test.mean(axis=1, keepdims=True)) / std_
 
     return x_train, y_train, x_test, y_test
+
+def pre_train(model):
+    x_train, y_train = load_gunpoint(split="TRAIN")
+    x_test, y_test = load_gunpoint(split="TEST")
+
+    model.fit(x_train, y_train, batch_size=6, epochs=150,
+                              verbose=False, validation_data=(x_test, y_test))

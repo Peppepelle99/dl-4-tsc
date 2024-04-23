@@ -20,7 +20,7 @@ from utils.utils import visualize_confusion_matrix
 
 class Classifier_RESNET:
 
-    def __init__(self, output_directory, input_shape, nb_classes, verbose=False, build=True, load_weights=False):
+    def __init__(self, output_directory, input_shape = 70, nb_classes = 4, verbose=False, build=True, load_weights=False):
         self.output_directory = output_directory
         if build == True:
             self.model = self.build_model(input_shape, nb_classes)
@@ -130,11 +130,6 @@ class Classifier_RESNET:
 
         # x_val and y_val are only used to monitor the test loss and NOT for training
 
-        if self.model.weights:
-            print('modello nuovo')
-        else:
-            print('modello già addestrato')
-
         start_time = time.time()
 
         hist = self.model.fit(x_train, y_train, batch_size=mini_batch_size, epochs=nb_epochs,
@@ -164,7 +159,7 @@ class Classifier_RESNET:
         start_time = time.time()
         model_path = self.output_directory + 'best_model.hdf5'
         model = keras.models.load_model(model_path)
-        y_pred = model.predict(x_test)
+        y_pred = model.predict(x_test, verbose = 0)
         if return_df_metrics:
             y_pred = np.argmax(y_pred, axis=1)
             df_metrics = calculate_metrics(y_true, y_pred, 0.0)
