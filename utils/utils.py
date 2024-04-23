@@ -8,10 +8,13 @@ import matplotlib.pyplot as plt
 
 import os
 
+import sklearn
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.model_selection import train_test_split
+import tensorflow.keras as keras
+import tensorflow as tf
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -272,5 +275,15 @@ def pre_train(model):
     x_train, y_train = load_gunpoint(split="TRAIN")
     x_test, y_test = load_gunpoint(split="TEST")
 
-    model.fit(x_train, y_train, batch_size=6, epochs=150,
-                              verbose=False, validation_data=(x_test, y_test))
+    enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
+    enc.fit(np.concatenate((y_train, y_test), axis=0).reshape(-1, 1))
+    y_train = enc.transform(y_train.reshape(-1, 1)).toarray()
+    y_test = enc.transform(y_test.reshape(-1, 1)).toarray()
+
+    x_train = x_train.reshape((x_train.shape[0],x_train.shape[2], 1))
+    x_test = x_test.reshape((x_test.shape[0],x_test.shape[2], 1))
+
+    model.fit(x_train, y_train, batch_size=6, epochs=5,
+                              verbose=True, validation_data=(x_test, y_test))
+    
+    return model

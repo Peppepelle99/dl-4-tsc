@@ -10,10 +10,10 @@ from sklearn.metrics import accuracy_score
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Imposta il livello di registro di TensorFlow a solo errori
 
 import tensorflow as tf
-tf.get_logger().setLevel('ERROR')  # Imposta il livello di registro di TensorFlow a solo errori
+tf.get_logger().setLevel('ERROR')  #Imposta il livello di registro di TensorFlow a solo errori
 
 import warnings
-warnings.filterwarnings("ignore")  # Ignora tutti i messaggi di avvertimento di Python
+warnings.filterwarnings("ignore")  #Ignora tutti i messaggi di avvertimento di Python
 
 import keras
 import logging
@@ -27,8 +27,8 @@ def fit_classifier():
 
     scores = []
 
-    classifier_pretrained = create_classifier(classifier_name, output_directory)
-    pre_train(classifier_pretrained.model)
+    classifier_pretrained = create_classifier(classifier_name, (150,1), 2, output_directory)
+    pretrained_model = pre_train(classifier_pretrained.model)
 
     for i, (train_index, test_index) in enumerate(kfold.split(X,y)):
 
@@ -46,17 +46,19 @@ def fit_classifier():
 
           # save orignal y because later we will use binary
           y_true = np.argmax(y_test, axis=1)
+
+          x_train = x_train.reshape((x_train.shape[0],x_train.shape[1], 1))
+          x_test = x_test.reshape((x_test.shape[0],x_test.shape[1], 1))
       else:
           y_true = y_test
-      
-      # add a dimension to make it multivariate with one dimension 
-      x_train = x_train.reshape((x_train.shape[0],1, x_train.shape[1]))
-      x_test = x_test.reshape((x_test.shape[0],1, x_test.shape[1]))      
+    
+          x_train = x_train.reshape((x_train.shape[0],1, x_train.shape[1]))
+          x_test = x_test.reshape((x_test.shape[0],1, x_test.shape[1]))      
 
       input_shape = x_train.shape[1:]
 
       classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory)
-      classifier.model.set_weights(classifier_pretrained.model.get_weights())
+      classifier.transfer_learning(pretrained_model, input_shape, nb_classes)
 
       y_pred = classifier.fit(x_train, y_train, x_test, y_test, y_true, nb_epochs = 150)
 

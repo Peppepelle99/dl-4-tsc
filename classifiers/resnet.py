@@ -168,3 +168,33 @@ class Classifier_RESNET:
             test_duration = time.time() - start_time
             save_test_duration(self.output_directory + 'test_duration.csv', test_duration)
             return y_pred
+        
+    def transfer_learning(self, model,input_shape, nb_classes):
+
+        new_input = tf.keras.layers.Input(shape=input_shape)
+        x = new_input
+
+        # Aggiungi tutti i livelli del modello preaddestrato escluso l'ultimo
+        for layer in model.layers[1:-1]:
+            x = layer(x)
+
+        # Aggiungi un nuovo strato di output adatto al tuo nuovo task
+        new_output = tf.keras.layers.Dense(nb_classes, activation='softmax')(x)
+
+        # Crea il nuovo modello per il transfer learning
+        model_transfer = tf.keras.Model(inputs=new_input, outputs=new_output)
+
+
+        model_transfer.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(),
+                      metrics=['accuracy'])
+
+        reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50, min_lr=0.0001)
+
+        file_path = self.output_directory + 'best_model.hdf5'
+
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path, monitor='loss',
+                                                           save_best_only=True)
+
+        self.callbacks = [reduce_lr, model_checkpoint]
+
+        self.model = model_transfer
