@@ -283,7 +283,7 @@ def pre_train(model):
     x_train = x_train.reshape((x_train.shape[0],x_train.shape[2], 1))
     x_test = x_test.reshape((x_test.shape[0],x_test.shape[2], 1))
 
-    model.fit(x_train, y_train, batch_size=6, epochs=5,
+    model.fit(x_train, y_train, batch_size=6, epochs=150,
                               verbose=True, validation_data=(x_test, y_test))
     
     return model

@@ -51,14 +51,14 @@ class Classifier_RESNET:
         conv_y = keras.layers.BatchNormalization()(conv_y)
         conv_y = keras.layers.Activation('relu')(conv_y)
 
-        conv_z = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=3, padding='same')(conv_y)
+        conv_z = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=3, padding='same')(conv_y) 
         conv_z = keras.layers.BatchNormalization()(conv_z)
 
         # expand channels for the sum
-        shortcut_y = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=1, padding='same')(input_layer)
+        shortcut_y = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=1, padding='same')(input_layer) #9
         shortcut_y = keras.layers.BatchNormalization()(shortcut_y)
 
-        output_block_1 = keras.layers.add([shortcut_y, conv_z])
+        output_block_1 = keras.layers.add([shortcut_y, conv_z]) #11
         output_block_1 = keras.layers.Activation('relu')(output_block_1)
 
         # BLOCK 2
@@ -75,10 +75,10 @@ class Classifier_RESNET:
         conv_z = keras.layers.BatchNormalization()(conv_z)
 
         # expand channels for the sum
-        shortcut_y = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=1, padding='same')(output_block_1)
+        shortcut_y = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=1, padding='same')(output_block_1) #21
         shortcut_y = keras.layers.BatchNormalization()(shortcut_y)
 
-        output_block_2 = keras.layers.add([shortcut_y, conv_z])
+        output_block_2 = keras.layers.add([shortcut_y, conv_z]) #23
         output_block_2 = keras.layers.Activation('relu')(output_block_2)
 
         # BLOCK 3
@@ -95,9 +95,9 @@ class Classifier_RESNET:
         conv_z = keras.layers.BatchNormalization()(conv_z)
 
         # no need to expand channels because they are equal
-        shortcut_y = keras.layers.BatchNormalization()(output_block_2)
+        shortcut_y = keras.layers.BatchNormalization()(output_block_2) #33
 
-        output_block_3 = keras.layers.add([shortcut_y, conv_z])
+        output_block_3 = keras.layers.add([shortcut_y, conv_z]) #34
         output_block_3 = keras.layers.Activation('relu')(output_block_3)
 
         # FINAL
@@ -171,30 +171,5 @@ class Classifier_RESNET:
         
     def transfer_learning(self, model,input_shape, nb_classes):
 
-        new_input = tf.keras.layers.Input(shape=input_shape)
-        x = new_input
-
-        # Aggiungi tutti i livelli del modello preaddestrato escluso l'ultimo
-        for layer in model.layers[1:-1]:
-            x = layer(x)
-
-        # Aggiungi un nuovo strato di output adatto al tuo nuovo task
-        new_output = tf.keras.layers.Dense(nb_classes, activation='softmax')(x)
-
-        # Crea il nuovo modello per il transfer learning
-        model_transfer = tf.keras.Model(inputs=new_input, outputs=new_output)
-
-
-        model_transfer.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(),
-                      metrics=['accuracy'])
-
-        reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50, min_lr=0.0001)
-
-        file_path = self.output_directory + 'best_model.hdf5'
-
-        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path, monitor='loss',
-                                                           save_best_only=True)
-
-        self.callbacks = [reduce_lr, model_checkpoint]
-
-        self.model = model_transfer
+        for layer, pre_trained_layer in zip(self.model.layers[:-1], model.layers[:-1]):
+            layer.set_weights(pre_trained_layer.get_weights())
