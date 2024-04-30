@@ -24,32 +24,62 @@ import seaborn as sns
 from scipy.interpolate import interp1d
 np.float = float
 
-from aeon.datasets import load_gunpoint
+from aeon.datasets import load_classification
 
 
 def load_dataset():
-  data = np.load('archives/Dataset_Liquid_2.npy')
+  data = np.load('archives/Dataset_Liquid_Complete.npy')
   X = data[:, :-1]  
   y = data[:, -1]   
 
 
-  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
 
-  #Z-score Normalization
-  std_ = X_train.std(axis=1, keepdims=True)
-  std_[std_ == 0] = 1.0
-  X_train_normalized = (X_train - X_train.mean(axis=1, keepdims=True)) / std_
+#   #Z-score Normalization
+#   std_ = X_train.std(axis=1, keepdims=True)
+#   std_[std_ == 0] = 1.0
+#   X_train_normalized = (X_train - X_train.mean(axis=1, keepdims=True)) / std_
 
-  std_ = X_test.std(axis=1, keepdims=True)
-  std_[std_ == 0] = 1.0
-  X_test_normalized = (X_test - X_test.mean(axis=1, keepdims=True)) / std_
+#   std_ = X_test.std(axis=1, keepdims=True)
+#   std_[std_ == 0] = 1.0
+#   X_test_normalized = (X_test - X_test.mean(axis=1, keepdims=True)) / std_
   
 
-  return X_train_normalized, y_train, X_test_normalized, y_test
+  return X_train, y_train, X_test, y_test
+
+
+def reshape(classifier_name, x_train, x_val, y_train, y_val):
+
+    if classifier_name != 'hivecote2':
+          enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
+          enc.fit(np.concatenate((y_train, y_val), axis=0).reshape(-1, 1))
+          y_train = enc.transform(y_train.reshape(-1, 1)).toarray()
+          y_val = enc.transform(y_val.reshape(-1, 1)).toarray()
+
+          # save orignal y because later we will use binary
+          y_true = np.argmax(y_val, axis=1)
+
+          x_train = x_train.reshape((x_train.shape[0],x_train.shape[1], 1))
+          x_val = x_val.reshape((x_val.shape[0],x_val.shape[1], 1))
+    else:
+        y_true = y_val
+    
+        x_train = x_train.reshape((x_train.shape[0],1, x_train.shape[1]))
+        x_val = x_val.reshape((x_val.shape[0],1, x_val.shape[1])) 
+    
+    return x_train, y_train, x_val, y_val, y_true
+
 
 def load_dataset2():
 
     data = np.load('archives/Dataset_Liquid_2.npy')
+    X = data[:, :-1]  
+    y = data[:, -1]
+
+    return X,y
+
+def load_dataset_test():
+    data = np.load('archives/Dataset_Liquid_Copper.npy')
     X = data[:, :-1]  
     y = data[:, -1]
 
@@ -176,13 +206,22 @@ def save_logs(output_directory, hist, y_pred, y_true, duration, lr=True, y_true_
 
     df_best_model.to_csv(output_directory + 'df_best_model.csv', index=False)
 
-    # for FCN there is no hyperparameters fine tuning - everything is static in code
+    #for FCN there is no hyperparameters fine tuning - everything is static in code
 
     # plot losses
     plot_epochs_metric(hist, output_directory + 'epochs_loss.png')
 
     return df_metrics
 
+def save_experiment(output_directory, lr, mini_batch, mean_acc, std_acc):
+    df_experiment = pd.DataFrame(data=np.zeros((1, 6), dtype=np.float), index=[0],
+                                 columns=['lr', 'mini_batch', 'mean_acc','std_acc'])
+    df_experiment['lr'] = lr
+    df_experiment['mini_batch'] = mini_batch
+    df_experiment['mean_acc'] = mean_acc
+    df_experiment['std_acc'] = std_acc  
+
+    df_experiment.to_csv(output_directory + 'df_experiment.csv', index=False)
 
 def visualize_filter(root_dir):
     import tensorflow.keras as keras
@@ -234,13 +273,6 @@ def visualize_filter(root_dir):
     return 1
 
 def visualize_confusion_matrix(output_directory, y_true, y_pred):
-
-    # Supponiamo che y_true sia la lista delle vere etichette e y_pred sia la lista delle etichette predette dal tuo modello
-    # Ad esempio:
-    # y_true = [0, 1, 2, 0, 1, 2, 0, 1, 2]
-    # y_pred = [0, 1, 2, 1, 1, 2, 0, 0, 2]
-
-    # Calcola la matrice di confusione
     cm = confusion_matrix(y_true, y_pred)
 
     # Genera un grafico della matrice di confusione utilizzando seaborn
@@ -272,8 +304,8 @@ def kfold_split(X, y, train_index, test_index, normalization=True ):
     return x_train, y_train, x_test, y_test
 
 def pre_train(model):
-    x_train, y_train = load_gunpoint(split="TRAIN")
-    x_test, y_test = load_gunpoint(split="TEST")
+    x_train, y_train = load_classification(name="TwoPatterns", split="TRAIN")
+    x_test, y_test = load_classification(name="TwoPatterns", split="TEST")
 
     enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
     enc.fit(np.concatenate((y_train, y_test), axis=0).reshape(-1, 1))
@@ -283,7 +315,7 @@ def pre_train(model):
     x_train = x_train.reshape((x_train.shape[0],x_train.shape[2], 1))
     x_test = x_test.reshape((x_test.shape[0],x_test.shape[2], 1))
 
-    model.fit(x_train, y_train, batch_size=6, epochs=150,
+    model.fit(x_train, y_train, batch_size=6, epochs=30,
                               verbose=True, validation_data=(x_test, y_test))
     
     return model

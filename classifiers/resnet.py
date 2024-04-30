@@ -23,10 +23,10 @@ from sklearn.metrics import accuracy_score
 
 class Classifier_RESNET:
 
-    def __init__(self, output_directory, input_shape = 70, nb_classes = 4, verbose=False, build=True, load_weights=False):
+    def __init__(self, output_directory, input_shape = 70, nb_classes = 4, verbose=False, build=True, load_weights=False, lr = 0.01):
         self.output_directory = output_directory
         if build == True:
-            self.model = self.build_model(input_shape, nb_classes)
+            self.model = self.build_model(input_shape, nb_classes, lr=lr)
             if (verbose == True):
                 self.model.summary()
             self.verbose = verbose
@@ -39,7 +39,7 @@ class Classifier_RESNET:
                 self.model.save_weights(self.output_directory + 'model_init.hdf5')
         return
 
-    def build_model(self, input_shape, nb_classes):
+    def build_model(self, input_shape, nb_classes, lr = 0.01):
         n_feature_maps = 64
 
         input_layer = keras.layers.Input(input_shape)
@@ -111,10 +111,10 @@ class Classifier_RESNET:
 
         model = keras.models.Model(inputs=input_layer, outputs=output_layer)
 
-        model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(),
+        model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(learning_rate = lr),
                       metrics=['accuracy'])
 
-        reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50, min_lr=0.0001)
+        reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.2, patience=5, min_lr=0.0001)
 
         file_path = self.output_directory + 'best_model.hdf5'
 
@@ -172,7 +172,7 @@ class Classifier_RESNET:
             save_test_duration(self.output_directory + 'test_duration.csv', test_duration)
             return y_pred
         
-    def transfer_learning(self, model,input_shape, nb_classes):
+    def transfer_learning(self, model,lr = 0.01):
 
         x_test, y_test = load_classification(name="TwoPatterns", split="TEST")
 
@@ -184,11 +184,12 @@ class Classifier_RESNET:
         #fineTuning
         for layer in self.model.layers[:-1]:
           layer.trainable = False
-        
-        model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(),
+
+
+        model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(learning_rate = lr),
                       metrics=['accuracy'])
 
-        reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50, min_lr=0.0001)
+        reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.2, patience=5, min_lr=0.0001)
 
         file_path = self.output_directory + 'best_model.hdf5'
 
