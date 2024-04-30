@@ -17,7 +17,7 @@ from utils.utils import save_logs
 from utils.utils import calculate_metrics
 from utils.utils import visualize_confusion_matrix
 
-from aeon.datasets import load_gunpoint
+from aeon.datasets import load_classification
 import sklearn
 from sklearn.metrics import accuracy_score
 
@@ -174,7 +174,7 @@ class Classifier_RESNET:
         
     def transfer_learning(self, model,input_shape, nb_classes):
 
-        x_test, y_test = load_gunpoint(split="TEST")
+        x_test, y_test = load_classification(name="TwoPatterns", split="TEST")
 
         x_test = x_test.reshape((x_test.shape[0],x_test.shape[2], 1))
 
