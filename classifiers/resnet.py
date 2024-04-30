@@ -17,6 +17,9 @@ from utils.utils import save_logs
 from utils.utils import calculate_metrics
 from utils.utils import visualize_confusion_matrix
 
+from aeon.datasets import load_gunpoint
+import sklearn
+from sklearn.metrics import accuracy_score
 
 class Classifier_RESNET:
 
@@ -171,5 +174,25 @@ class Classifier_RESNET:
         
     def transfer_learning(self, model,input_shape, nb_classes):
 
+        x_test, y_test = load_gunpoint(split="TEST")
+
+        x_test = x_test.reshape((x_test.shape[0],x_test.shape[2], 1))
+
         for layer, pre_trained_layer in zip(self.model.layers[:-1], model.layers[:-1]):
             layer.set_weights(pre_trained_layer.get_weights())
+        
+        #fineTuning
+        for layer in self.model.layers[:-1]:
+          layer.trainable = False
+        
+        model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(),
+                      metrics=['accuracy'])
+
+        reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50, min_lr=0.0001)
+
+        file_path = self.output_directory + 'best_model.hdf5'
+
+        model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path, monitor='loss',
+                                                           save_best_only=True)
+
+        self.callbacks = [reduce_lr, model_checkpoint]
