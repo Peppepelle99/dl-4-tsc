@@ -20,16 +20,14 @@ import keras
 import logging
 logging.getLogger('tensorflow').disabled = True  # Disabilita tutti i messaggi di log di TensorFlow
 
-def fit_classifier(lr = 0.01, mini_batch = 6):
+def fit_classifier(lr = 0.01, mini_batch = 6, tl = False):
 
+    print(f'params: lr - {lr}, mini batch - {mini_batch}, tl - {tl}')
     X, y, X_test, y_test = load_dataset()
 
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 
-    scores = []
-
-    classifier_pretrained = create_classifier(classifier_name, (150,1), 2, output_directory, lr = 0.001)
-    pretrained_model = pre_train(classifier_pretrained.model)
+    scores = []        
 
     for i, (train_index, val_index) in enumerate(kfold.split(X, y)):
 
@@ -42,7 +40,10 @@ def fit_classifier(lr = 0.01, mini_batch = 6):
       input_shape = x_train.shape[1:]
 
       classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory, lr = lr)
-      classifier.transfer_learning(pretrained_model)
+
+      if tl:
+        pretrained_model = keras.models.load_model('pretrained_model.hdf5')
+        classifier.transfer_learning(pretrained_model)
 
 
       y_pred = classifier.fit(x_train, y_train, x_val, y_val, y_true, nb_epochs = 150, mini_batch_size=mini_batch)
@@ -52,9 +53,8 @@ def fit_classifier(lr = 0.01, mini_batch = 6):
       scores.append(acc)
     
     print(f'accuracy mean: {np.mean(scores)}, std: {np.std(scores)}')
-    np.save(output_directory + 'accuracy_scores.npy', scores)
 
-    save_experiment(output_directory, lr, mini_batch, np.mean(scores), np.std(scores))
+    return np.mean(scores), np.std(scores)
 
 def test_classifier():
     x_train, y_train = load_dataset2()
@@ -132,14 +132,24 @@ else:
 
     param_grid = {
     'learning_rate': [0.001, 0.01, 0.1],
-    'mini_batch': [10, 8, 6, 4]
+    'mini_batch': [10, 8, 6, 4],
+    'tranfer_learning': [True, False]
     }
 
     param_combinations = list(product(*param_grid.values()))
 
+    results = []
+
+    classifier_pretrained = create_classifier(classifier_name, (150,1), 2, output_directory, lr = 0.001)
+    pretrained_model = pre_train(output_directory,classifier_pretrained.model)
+
     for params in param_combinations:
-        lr, mini_batch = params
-        fit_classifier(lr, mini_batch)
+        lr, mini_batch, tl = params
+        mean_acc, std_acc = fit_classifier(lr, mini_batch)
+
+        results.append(lr, mini_batch, mean_acc, std_acc)
+    
+    save_experiment(output_directory, results)
 
     
     print('DONE')

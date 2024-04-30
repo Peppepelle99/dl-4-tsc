@@ -213,13 +213,11 @@ def save_logs(output_directory, hist, y_pred, y_true, duration, lr=True, y_true_
 
     return df_metrics
 
-def save_experiment(output_directory, lr, mini_batch, mean_acc, std_acc):
-    df_experiment = pd.DataFrame(data=np.zeros((1, 6), dtype=np.float), index=[0],
-                                 columns=['lr', 'mini_batch', 'mean_acc','std_acc'])
-    df_experiment['lr'] = lr
-    df_experiment['mini_batch'] = mini_batch
-    df_experiment['mean_acc'] = mean_acc
-    df_experiment['std_acc'] = std_acc  
+def save_experiment(output_directory, results):
+    columns = ['lr', 'mini_batch', 'mean_acc', 'std_acc']
+
+    # Creazione del DataFrame
+    df_experiment = pd.DataFrame(results, columns=columns)
 
     df_experiment.to_csv(output_directory + 'df_experiment.csv', index=False)
 
@@ -303,7 +301,7 @@ def kfold_split(X, y, train_index, test_index, normalization=True ):
 
     return x_train, y_train, x_test, y_test
 
-def pre_train(model):
+def pre_train(output_folder, model):
     x_train, y_train = load_classification(name="TwoPatterns", split="TRAIN")
     x_test, y_test = load_classification(name="TwoPatterns", split="TEST")
 
@@ -317,5 +315,7 @@ def pre_train(model):
 
     model.fit(x_train, y_train, batch_size=6, epochs=30,
                               verbose=True, validation_data=(x_test, y_test))
+    
+    model.save(output_folder + '/pretrained_model.hdf5')
     
     return model
