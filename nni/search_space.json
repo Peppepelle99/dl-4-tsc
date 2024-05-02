@@ -1,0 +1,6 @@
+
+{
+    "learning_rate": {"_type": "choice", "_value": [0.001, 0.0015, 0.002, 0.0025]},
+    "mini_batch": {"_type": "choice", "_value": [15, 10, 8, 6]},
+    "transfer_learning": {"_type": "choice", "_value": [true, false]}
+}
