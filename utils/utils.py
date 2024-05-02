@@ -27,7 +27,7 @@ np.float = float
 from aeon.datasets import load_classification
 
 
-def load_dataset():
+def load_dataset(split):
   data = np.load('archives/Dataset_Liquid_Complete.npy')
   X = data[:, :-1]  
   y = data[:, -1]   
@@ -35,17 +35,12 @@ def load_dataset():
 
   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
 
-#   #Z-score Normalization
-#   std_ = X_train.std(axis=1, keepdims=True)
-#   std_[std_ == 0] = 1.0
-#   X_train_normalized = (X_train - X_train.mean(axis=1, keepdims=True)) / std_
-
-#   std_ = X_test.std(axis=1, keepdims=True)
-#   std_[std_ == 0] = 1.0
-#   X_test_normalized = (X_test - X_test.mean(axis=1, keepdims=True)) / std_
-  
-
-  return X_train, y_train, X_test, y_test
+  if split == 'TRAIN':
+    return  X_train, y_train
+  elif split == 'TEST':
+    return X_test, y_test
+  else:
+    return X_train, y_train, X_test, y_test
 
 
 def reshape(classifier_name, x_train, x_val, y_train, y_val):
@@ -72,7 +67,7 @@ def reshape(classifier_name, x_train, x_val, y_train, y_val):
 
 def load_dataset2():
 
-    data = np.load('archives/Dataset_Liquid_2.npy')
+    data = np.load('archives/Dataset_Liquid_Water.npy')
     X = data[:, :-1]  
     y = data[:, -1]
 
@@ -214,7 +209,7 @@ def save_logs(output_directory, hist, y_pred, y_true, duration, lr=True, y_true_
     return df_metrics
 
 def save_experiment(output_directory, results):
-    columns = ['lr', 'mini_batch', 'mean_acc', 'std_acc']
+    columns = ['lr', 'mini_batch', 'transfer_learning', 'mean_acc', 'std_acc']
 
     # Creazione del DataFrame
     df_experiment = pd.DataFrame(results, columns=columns)

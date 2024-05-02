@@ -20,10 +20,13 @@ import keras
 import logging
 logging.getLogger('tensorflow').disabled = True  # Disabilita tutti i messaggi di log di TensorFlow
 
-def fit_classifier(lr = 0.01, mini_batch = 6, tl = False):
+def fit_classifier(dataset, params):
+
+    lr, mini_batch, tl = params
+    X, y = dataset
 
     print(f'params: lr - {lr}, mini batch - {mini_batch}, tl - {tl}')
-    X, y, X_test, y_test = load_dataset()
+    
 
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 
@@ -42,7 +45,7 @@ def fit_classifier(lr = 0.01, mini_batch = 6, tl = False):
       classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory, lr = lr)
 
       if tl:
-        pretrained_model = keras.models.load_model('pretrained_model.hdf5')
+        pretrained_model = keras.models.load_model(output_directory + '/pretrained_model.hdf5')
         classifier.transfer_learning(pretrained_model)
 
 
@@ -52,7 +55,7 @@ def fit_classifier(lr = 0.01, mini_batch = 6, tl = False):
       print(f'fold: {i}, accuracy = {acc}')
       scores.append(acc)
     
-    print(f'accuracy mean: {np.mean(scores)}, std: {np.std(scores)}')
+    print(f'accuracy mean: {np.mean(scores)}, std: {np.std(scores)} \n\n')
 
     return np.mean(scores), np.std(scores)
 
@@ -132,7 +135,7 @@ else:
 
     param_grid = {
     'learning_rate': [0.001, 0.01, 0.1],
-    'mini_batch': [10, 8, 6, 4],
+    'mini_batch': [15, 10, 8, 6],
     'tranfer_learning': [True, False]
     }
 
@@ -140,14 +143,19 @@ else:
 
     results = []
 
-    classifier_pretrained = create_classifier(classifier_name, (150,1), 2, output_directory, lr = 0.001)
+    classifier_pretrained = create_classifier(classifier_name, (128,1), 4, output_directory, lr = 0.001)
     pretrained_model = pre_train(output_directory,classifier_pretrained.model)
 
-    for params in param_combinations:
-        lr, mini_batch, tl = params
-        mean_acc, std_acc = fit_classifier(lr, mini_batch)
+    dataset = load_dataset(split='TRAIN')
 
-        results.append(lr, mini_batch, mean_acc, std_acc)
+    for idx, params in enumerate(param_combinations):
+
+        print(f'experiment: {idx}/{len(param_combinations)} \n')
+
+        lr, mini_batch, tl = params
+        mean_acc, std_acc = fit_classifier(dataset, params)
+
+        results.append([lr, mini_batch, tl, mean_acc, std_acc])
     
     save_experiment(output_directory, results)
 
