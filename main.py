@@ -46,7 +46,7 @@ def fit_classifier(dataset, params):
       classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory, lr = lr)
 
       if tl:
-        pretrained_model = keras.models.load_model(output_directory + '/pretrained_model.hdf5')
+        pretrained_model = keras.models.load_model('../pretrained_models/resnet.hdf5')
         classifier.transfer_learning(pretrained_model)
 
 
@@ -124,7 +124,7 @@ itr = sys.argv[2]
 if itr == '_itr_0':
     itr = ''
 
-output_directory = 'results/' + classifier_name + '/' + itr + '/'
+output_directory = '../results/' + classifier_name + '/' + itr + '/'
 
 test_dir_df_metrics = output_directory + 'df_metrics.csv'
 
@@ -146,8 +146,8 @@ else:
 
     # results = []
 
-    classifier_pretrained = create_classifier(classifier_name, (128,1), 4, output_directory, lr = 0.001)
-    pretrained_model = pre_train(output_directory,classifier_pretrained.model)
+    # classifier_pretrained = create_classifier(classifier_name, (128,1), 4, output_directory, lr = 0.001)
+    # pretrained_model = pre_train(output_directory,classifier_pretrained.model)
 
     dataset = load_dataset(split='TRAIN')
 
