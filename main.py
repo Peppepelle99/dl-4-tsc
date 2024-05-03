@@ -23,7 +23,7 @@ logging.getLogger('tensorflow').disabled = True  # Disabilita tutti i messaggi d
 
 def fit_classifier(dataset, params):
 
-    lr, mini_batch, tl = params
+    lr, mini_batch, tl, n_epochs = params
     X, y = dataset
 
     print(f'params: lr - {lr}, mini batch - {mini_batch}, tl - {tl}')
@@ -50,7 +50,7 @@ def fit_classifier(dataset, params):
         classifier.transfer_learning(pretrained_model)
 
 
-      y_pred = classifier.fit(x_train, y_train, x_val, y_val, y_true, nb_epochs = 150, mini_batch_size=mini_batch)
+      y_pred = classifier.fit(x_train, y_train, x_val, y_val, y_true, nb_epochs = n_epochs, mini_batch_size=mini_batch)
 
       acc = accuracy_score(y_true, y_pred)
       print(f'fold: {i}, accuracy = {acc}')
@@ -136,7 +136,8 @@ create_directory(output_directory)
 param_grid = {
 'learning_rate': 0.001,
 'mini_batch': 15,
-'transfer_learning': True 
+'transfer_learning': False,
+'num_epochs': 150
 }
 
 optimized_params = nni.get_next_parameter()
@@ -152,7 +153,7 @@ dataset = load_dataset(split='TRAIN')
 #for idx, params in enumerate(param_combinations):
 #print(f'experiment: {idx}/{len(param_combinations)} \n')
 
-lr, mini_batch, tl = params = param_grid['learning_rate'], param_grid['mini_batch'], param_grid['transfer_learning']
+params = param_grid['learning_rate'], param_grid['mini_batch'], param_grid['transfer_learning'], param_grid['num_epochs']
 mean_acc, std_acc = fit_classifier(dataset, params)
 
 nni.report_final_result(mean_acc)
