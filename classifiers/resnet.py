@@ -11,15 +11,15 @@ import matplotlib
 from utils.utils import save_test_duration
 
 matplotlib.use('agg')
-import matplotlib.pyplot as plt
 
 from utils.utils import save_logs
 from utils.utils import calculate_metrics
 from utils.utils import visualize_confusion_matrix
 
 from aeon.datasets import load_classification
-import sklearn
-from sklearn.metrics import accuracy_score
+
+
+
 
 class Classifier_RESNET:
 
@@ -27,8 +27,6 @@ class Classifier_RESNET:
         self.output_directory = output_directory
         if build == True:
             self.model = self.build_model(input_shape, nb_classes, lr=lr)
-            if (verbose == True):
-                self.model.summary()
             self.verbose = verbose
             if load_weights == True:
                 self.model.load_weights(self.output_directory

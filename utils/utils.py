@@ -27,7 +27,9 @@ np.float = float
 from aeon.datasets import load_classification
 
 
-def load_dataset(split):
+
+
+def load_dataset(split = None):
   data = np.load('../archives/Dataset_Liquid_Complete.npy')
   X = data[:, :-1]  
   y = data[:, -1]   
