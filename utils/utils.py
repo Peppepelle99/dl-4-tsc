@@ -28,7 +28,7 @@ from aeon.datasets import load_classification
 
 
 def load_dataset(split):
-  data = np.load('archives/Dataset_Liquid_Complete.npy')
+  data = np.load('../archives/Dataset_Liquid_Complete.npy')
   X = data[:, :-1]  
   y = data[:, -1]   
 

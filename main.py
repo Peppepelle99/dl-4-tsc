@@ -129,39 +129,37 @@ output_directory = '../results/' + classifier_name + '/' + itr + '/'
 test_dir_df_metrics = output_directory + 'df_metrics.csv'
 
 print('Method: ', classifier_name, itr)
-if os.path.exists(test_dir_df_metrics):
-    print('Already done')
-else:
-    
-    create_directory(output_directory)
-
-    param_grid = {
-    'learning_rate': 0.001,
-    'mini_batch': 15,
-    'transfer_learning': True 
-    }
-
-    optimized_params = nni.get_next_parameter()
-    param_grid.update(optimized_params)
-
-    # results = []
-
-    # classifier_pretrained = create_classifier(classifier_name, (128,1), 4, output_directory, lr = 0.001)
-    # pretrained_model = pre_train(output_directory,classifier_pretrained.model)
-
-    dataset = load_dataset(split='TRAIN')
-
-    #for idx, params in enumerate(param_combinations):
-    #print(f'experiment: {idx}/{len(param_combinations)} \n')
-
-    lr, mini_batch, tl = params = param_grid['learning_rate'], param_grid['mini_batch'], param_grid['transfer_learning']
-    mean_acc, std_acc = fit_classifier(dataset, params)
-
-    nni.report_final_result(mean_acc)
-
-    # results.append([lr, mini_batch, tl, mean_acc, std_acc])
-    
-    #save_experiment(output_directory, results)
 
     
-    print('DONE')
+create_directory(output_directory)
+
+param_grid = {
+'learning_rate': 0.001,
+'mini_batch': 15,
+'transfer_learning': True 
+}
+
+optimized_params = nni.get_next_parameter()
+param_grid.update(optimized_params)
+
+# results = []
+
+# classifier_pretrained = create_classifier(classifier_name, (128,1), 4, output_directory, lr = 0.001)
+# pretrained_model = pre_train(output_directory,classifier_pretrained.model)
+
+dataset = load_dataset(split='TRAIN')
+
+#for idx, params in enumerate(param_combinations):
+#print(f'experiment: {idx}/{len(param_combinations)} \n')
+
+lr, mini_batch, tl = params = param_grid['learning_rate'], param_grid['mini_batch'], param_grid['transfer_learning']
+mean_acc, std_acc = fit_classifier(dataset, params)
+
+nni.report_final_result(mean_acc)
+
+# results.append([lr, mini_batch, tl, mean_acc, std_acc])
+
+#save_experiment(output_directory, results)
+
+
+print('DONE')
