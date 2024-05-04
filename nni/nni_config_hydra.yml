@@ -1,0 +1,12 @@
+searchSpaceFile: search_space_hydra.json
+trialCommand: python ../main.py multiHydra _itr_1
+trialConcurrency: 1
+trialCodeDirectory: .           # The path of trial code. By default it's ".", which means the same directory of this config file.
+maxExperimentDuration: 6h       # Stop generating trials after 4 hour.
+tuner:
+  name: Anneal
+  classArgs:
+    optimize_mode: maximize
+trainingService:
+  platform: local
+  useActiveGpu: false

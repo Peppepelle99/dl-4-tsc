@@ -1,0 +1,5 @@
+{
+    "n_kernels": {"_type": "randint", "_value": [1,50]},
+    "n_groups": {"_type": "randint", "_value": [10, 100]}
+}
+

@@ -47,7 +47,7 @@ def load_dataset(split = None):
 
 def reshape(classifier_name, x_train, x_val, y_train, y_val):
 
-    if classifier_name != 'hivecote2':
+    if classifier_name == 'resnet':
           enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
           enc.fit(np.concatenate((y_train, y_val), axis=0).reshape(-1, 1))
           y_train = enc.transform(y_train.reshape(-1, 1)).toarray()
@@ -316,3 +316,20 @@ def pre_train(output_folder, model):
     model.save(output_folder + '/pretrained_model.hdf5')
     
     return model
+
+def select_params(classifier_name):
+    if classifier_name == 'resnet': 
+        return {
+                    'learning_rate': 0.001,
+                    'mini_batch': 15,
+                    'transfer_learning': False,
+                    'num_epochs': 20
+                }
+    
+    elif classifier_name == 'multiHydra':
+        return {
+                    'n_kernels': 8,
+                    'n_groups': 64
+                }
+    else:
+        return { 'none': None}
