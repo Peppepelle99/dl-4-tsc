@@ -1,5 +1,5 @@
 
 {
-    "max_shapelets": {"_type": "choice", "_value": [100, 1000, 5000, 10000, 20000, 30000]},
-    "shapelet_lengths": {"_type": "choice", "_value": [5,7,9,11]}    
+    "max_shapelets": {"_type": "choice", "_value": [100, 1000, 5000, 10000, 20000, 30000, 40000]},
+    "shapelet_lengths": {"_type": "choice", "_value": [5,7,9,11, "None"]}    
 }

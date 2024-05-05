@@ -333,14 +333,14 @@ def select_params(classifier_name):
                 }
     elif classifier_name == 'inceptionT':
         return {
-                    'batch_size': 64, # max 64
+                    'batch_size': 30, 
                     'num_epochs': 150,
-                    'depth': 3, # max 6
+                    'depth': 6, 
                 }
     elif classifier_name == 'rdst':
         return {
                     'max_shapelets': 10000, 
-                    'shapelet_lengths': 11,
+                    'shapelet_lengths': "None",
                 }
     else:
         return { 'none': None}
