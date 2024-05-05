@@ -38,7 +38,7 @@ param_grid = select_params(classifier_name)
 
 optimized_params = nni.get_next_parameter()
 param_grid.update(optimized_params)
-#params = param_grid['learning_rate'], param_grid['mini_batch'], param_grid['transfer_learning'], param_grid['num_epochs']
+# params = param_grid['learning_rate'], param_grid['mini_batch'], param_grid['transfer_learning'], param_grid['num_epochs']
 
 # classifier_pretrained = create_classifier(classifier_name, (128,1), 4, output_directory, lr = 0.001)
 # pretrained_model = pre_train(output_directory,classifier_pretrained.model)

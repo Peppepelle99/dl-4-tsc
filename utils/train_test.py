@@ -104,8 +104,16 @@ def create_classifier(classifier_name, params):
     if classifier_name == 'hivecote2':
         from aeon.classification.hybrid import HIVECOTEV2
         return HIVECOTEV2()
+    
     if classifier_name == 'multiHydra':
         from aeon.classification.convolution_based import MultiRocketHydraClassifier
-
         return MultiRocketHydraClassifier(n_kernels=params['n_kernels'], n_groups=params['n_groups'], random_state=42)
+    
+    if classifier_name == 'inceptionT':
+        from aeon.classification.deep_learning import InceptionTimeClassifier
+        return InceptionTimeClassifier(n_epochs=params['num_epochs'],batch_size=params['batch_size'], n_classifiers = 1, depth = 3, verbose=False, random_state = 42)
+    
+    if classifier_name == 'rdst':
+        from aeon.classification.shapelet_based import RDSTClassifier
+        return RDSTClassifier(max_shapelets = 20000, random_state = 42)
     

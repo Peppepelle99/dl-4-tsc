@@ -331,5 +331,16 @@ def select_params(classifier_name):
                     'n_kernels': 8,
                     'n_groups': 64
                 }
+    elif classifier_name == 'inceptionT':
+        return {
+                    'batch_size': 64, # max 64
+                    'num_epochs': 150,
+                    'depth': 3, # max 6
+                }
+    elif classifier_name == 'rdst':
+        return {
+                    'max_shapelets': 10000, 
+                    'shapelet_lengths': 11,
+                }
     else:
         return { 'none': None}

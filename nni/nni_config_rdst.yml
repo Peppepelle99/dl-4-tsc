@@ -1,5 +1,5 @@
-searchSpaceFile: search_space_resnet.json
-trialCommand: python ../main.py resnet _itr_1
+searchSpaceFile: search_space_rdst.json
+trialCommand: python ../main.py rdst _itr_1
 trialConcurrency: 1
 trialCodeDirectory: .           # The path of trial code. By default it's ".", which means the same directory of this config file.
 maxExperimentDuration: 6h       # Stop generating trials after 4 hour.
