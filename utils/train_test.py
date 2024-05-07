@@ -4,6 +4,48 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score
 import nni
 import keras
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import StackingClassifier
+
+def fit_ensamble(dataset, params, classifier_names):
+    
+    X, y = dataset
+
+    level_0 = []
+    for name, param in zip(classifier_names, params):
+       
+       classifier = create_classifier(name, param)
+       level_0.append((name,classifier))
+    
+    level_1 = LogisticRegression()
+
+    kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+
+    scores = []        
+
+    for i, (train_index, val_index) in enumerate(kfold.split(X, y)):
+
+      x_train, y_train, x_val, y_val = kfold_split(X, y, train_index, val_index)
+
+      # transform the labels from integers to one hot vectors
+      x_train, y_train, x_val, y_val, y_true = reshape(classifier_names[0], x_train, x_val, y_train, y_val) 
+
+      model = StackingClassifier(estimators=level_0, final_estimator=level_1, cv=5)
+
+      model.fit(x_train, y_train)  
+      y_pred = model.predict(x_val)
+    
+      acc = accuracy_score(y_true, y_pred)
+      print(f'fold: {i}, accuracy = {acc}')
+      scores.append(acc)
+      nni.report_intermediate_result(acc)
+    
+    print(f'accuracy mean: {np.mean(scores)}, std: {np.std(scores)} \n\n')
+
+    return np.mean(scores), np.std(scores)
+      
 
 
 
@@ -113,7 +155,7 @@ def create_classifier(classifier_name, params):
     
     if classifier_name == 'inceptionT':
         from aeon.classification.deep_learning import InceptionTimeClassifier
-        return InceptionTimeClassifier(n_epochs=params['num_epochs'],batch_size=params['batch_size'], n_classifiers = 1, depth = params['depth'], verbose=False, random_state = resample_id)
+        return InceptionTimeClassifier(n_epochs=params['num_epochs'],batch_size=params['batch_size'], n_classifiers = params['n_classifiers'], depth = params['depth'], verbose=False, random_state = resample_id)
     
     if classifier_name == 'rdst':
         

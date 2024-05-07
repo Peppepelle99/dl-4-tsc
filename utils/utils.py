@@ -326,21 +326,23 @@ def select_params(classifier_name):
                     'num_epochs': 20
                 }
     
-    elif classifier_name == 'multiHydra':
+    elif classifier_name == 'multiHydra': #best 95%
         return {
                     'n_kernels': 8,
                     'n_groups': 64
                 }
-    elif classifier_name == 'inceptionT':
+    elif classifier_name == 'inceptionT': #best 93%
         return {
-                    'batch_size': 30, 
-                    'num_epochs': 150,
-                    'depth': 6, 
-                }
-    elif classifier_name == 'rdst':
+                "batch_size": 64,
+                "num_epochs": 250,
+                "depth": 2,
+                "n_classifiers": 3
+            }
+    
+    elif classifier_name == 'rdst': #best 93%
         return {
-                    'max_shapelets': 10000, 
-                    'shapelet_lengths': "None",
+                    'max_shapelets': 1000, 
+                    'shapelet_lengths': 5,
                 }
     else:
         return { 'none': None}

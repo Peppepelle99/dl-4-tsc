@@ -1,7 +1,7 @@
 from utils.utils import create_directory
 import sys
 from utils.utils import load_dataset, select_params, pre_train
-from utils.train_test import fit_classifier, test_classifier
+from utils.train_test import fit_classifier, test_classifier, fit_ensamble
 import nni
 
 # remove info-warning
@@ -17,24 +17,39 @@ warnings.filterwarnings("ignore")
 logging.getLogger('tensorflow').disabled = True 
 
 
-
-classifier_name = sys.argv[1]
-itr = sys.argv[2]
 mode = 'TRAIN'
+ensamble = False
 
-if itr == '_itr_0':
-    itr = ''
+if ensamble:
+    classifiers= sys.argv[1:]
 
-output_directory = '../results/' + classifier_name + '/' + itr + '/'
-test_dir_df_metrics = output_directory + 'df_metrics.csv'
+    print('Method: ', classifiers, mode)
+else:
+    classifier_name = sys.argv[1]
+    print('Method: ', classifier_name, mode)
+    #itr = sys.argv[2]
 
-print('Method: ', classifier_name, itr, mode)
+
+
+# if itr == '_itr_0':
+#     itr = ''
+
+output_directory = '../results/'
+# test_dir_df_metrics = output_directory + 'df_metrics.csv'
+
+
 
     
-create_directory(output_directory)
+#create_directory(output_directory)
 
+if ensamble:
+    param_grid = select_params(classifiers[0])
 
-param_grid = select_params(classifier_name)
+    params = []
+    for c in classifiers:
+        params.append(select_params(c))
+else:
+    param_grid = select_params(classifier_name)
 
 optimized_params = nni.get_next_parameter()
 param_grid.update(optimized_params)
@@ -45,8 +60,11 @@ param_grid.update(optimized_params)
 
 if mode == 'TRAIN':
 
-    dataset = load_dataset(split='TRAIN')    
-    mean_acc, std_acc = fit_classifier(dataset, param_grid, classifier_name, output_directory)
+    dataset = load_dataset(split='TRAIN')
+    if ensamble:
+        mean_acc, std_acc = fit_ensamble(dataset, params, classifiers)
+    else:
+        mean_acc, std_acc = fit_classifier(dataset, param_grid, classifier_name, output_directory)
 
     nni.report_final_result(mean_acc)
 
